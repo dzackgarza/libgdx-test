@@ -6,7 +6,7 @@ import com.strongjoshua.console.CommandExecutor;
  * Created by Zack on 8/1/16.
  */
 public class ConsoleHandler extends CommandExecutor {
-    public void printHello() {
-        console.log("Hello.");
+    public void echo(String text) {
+        console.log(text);
     }
 }
