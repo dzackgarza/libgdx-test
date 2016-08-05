@@ -13,10 +13,7 @@ import com.badlogic.gdx.maps.objects.CircleMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.*;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.*;
@@ -40,12 +37,16 @@ public class MyRPG extends ApplicationAdapter {
 	private SpriteBatch batch;
 	Texture texture;
 	Sprite sprite;
-	ShapeRenderer shapes;
+	ShapeRenderer sr;
 	World world;
 	Array<Body> obstacles;
 	float w, h;
+
 	Box2DDebugRenderer debugRenderer;
 	MapLayer objectlayer;
+	int[][] allTiles;
+
+	int numY, numX;
 
 	@Override
 	public void create () {
@@ -56,13 +57,10 @@ public class MyRPG extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		texture = new Texture(Gdx.files.internal("pik.png"));
 		sprite = new Sprite(texture);
-		sprite.setPosition(w/2, h/2);
+		sprite.setPosition(0, 0);
+		sprite.setSize(1,1);
 
-		console = new GUIConsole();
-		console.setCommandExecutor(new ConsoleHandler());
-		console.setKeyID(Input.Keys.F12);
-
-		camera = new OrthographicCamera();
+		camera = new OrthographicCamera(w, h);
 		camera.setToOrtho(false, (w/h) * 10, 10);
 		camera.update();
 
@@ -73,15 +71,30 @@ public class MyRPG extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(cameraController);
 
 		font = new BitmapFont();
+		font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		font.getData().setScale(.1f,.1f);
 
-		shapes = new ShapeRenderer();
+		sr = new ShapeRenderer();
 
 		objectlayer = map.getLayers().get("objectlayer");
+		MapLayer terrain = map.getLayers().get("terrainlayer");
+		TiledMapTileLayer terrain2 = (TiledMapTileLayer) terrain;
 
-		debugRenderer = new Box2DDebugRenderer();
+		numY = terrain2.getHeight();
+		numX = terrain2.getWidth();
 
-		world = new World(new Vector2(0, -10), true);
-		obstacles = buildShapes(map, 32, world);
+		//[row][column]
+		allTiles = new int[terrain2.getHeight()][terrain2.getWidth()];
+		for(int i = 0; i < terrain2.getHeight(); i++) {
+			// i = row
+			for (int j = 0; j < terrain2.getWidth(); j++) {
+				//j = col
+				if (terrain2.getCell(i,j) != null) {
+					allTiles[i][j] = 1;
+				}
+			}
+		}
+
 		System.out.println("Game started.");
 	}
 
@@ -95,27 +108,35 @@ public class MyRPG extends ApplicationAdapter {
 		renderer.setView(camera);
 		renderer.render();
 
-		shapes.begin(ShapeRenderer.ShapeType.Line);
-		shapes.rect(w/2, h/2, 64, 64);
-		shapes.setColor(Color.RED);
-		//shapes.rect(obj.getX(), obj.getY(), 64, 64);
-		shapes.end();
+		sr.setProjectionMatrix(camera.combined);
+		batch.setProjectionMatrix(camera.combined);
 
 
-		//batch.setProjectionMatrix(camera.combined);
+		sr.begin(ShapeRenderer.ShapeType.Line);
+		sr.setColor(Color.GREEN);
+		sr.rect(0, 0, 1, 1);
+		for(int i = 0; i < numY; i++) {
+			for (int j = 0; j < numX; j++) {
+				if (allTiles[i][j] == 1) {
+					sr.setColor(Color.RED);
+				} else {
+					sr.setColor(Color.BLUE);
+				}
+				sr.rect(i,j,1,1);
+			}
+		}
+		sr.end();
+
+		
+		sprite.setCenterX(camera.position.x);
 		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), camera.position.x-8, camera.position.y+5);
 		sprite.draw(batch);
 		batch.end();
-
-		console.draw();
-		world.step(1/60f, 6, 2);
-		debugRenderer.render(world, camera.combined);
 	}
 
 	@Override
 	public void dispose () {
 		batch.dispose();
-		console.dispose();
 	}
 }

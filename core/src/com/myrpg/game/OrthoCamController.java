@@ -79,10 +79,14 @@ public class OrthoCamController extends InputAdapter {
             camera.translate(-dx,0);
         if(keycode == Input.Keys.RIGHT)
             camera.translate(dx,0);
-        if(keycode == Input.Keys.DOWN)
-            camera.translate(0,-dx);
-        if(keycode == Input.Keys.UP)
-            camera.translate(0,dx);
+        if(keycode == Input.Keys.DOWN) {
+            camera.translate(0, -dx);
+            playerSprite.setY(playerSprite.getY() - 1);
+        }
+        if(keycode == Input.Keys.UP) {
+            camera.translate(0, dx);
+            playerSprite.setY(playerSprite.getY() + 1);
+        }
         if(keycode == Input.Keys.ESCAPE)
             Gdx.app.exit();
         if(keycode == Input.Keys.NUM_1)
