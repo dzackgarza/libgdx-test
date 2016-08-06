@@ -27,19 +27,13 @@ import com.strongjoshua.console.GUIConsole;
 import static com.myrpg.game.MapBodyBuilder.buildShapes;
 
 public class MyRPG extends ApplicationAdapter {
-	private Texture img;
-	private Console console;
 	private TiledMap map;
 	private TiledMapRenderer renderer;
 	private OrthographicCamera camera;
 	private OrthoCamController cameraController;
 	private BitmapFont font;
 	private SpriteBatch batch;
-	Texture texture;
-	Sprite sprite;
 	ShapeRenderer sr;
-	World world;
-	Array<Body> obstacles;
 	float w, h;
 
 	Box2DDebugRenderer debugRenderer;
@@ -47,6 +41,10 @@ public class MyRPG extends ApplicationAdapter {
 	int[][] allTiles;
 
 	int numY, numX;
+	int tilesVisible = 10;
+	int pixelsPerTile = 32;
+
+	Player player;
 
 	@Override
 	public void create () {
@@ -55,24 +53,20 @@ public class MyRPG extends ApplicationAdapter {
 		h = Gdx.graphics.getHeight();
 
 		batch = new SpriteBatch();
-		texture = new Texture(Gdx.files.internal("pik.png"));
-		sprite = new Sprite(texture);
-		sprite.setPosition(0, 0);
-		sprite.setSize(1,1);
+
+		player = new Player("pik.png", pixelsPerTile);
 
 		camera = new OrthographicCamera(w, h);
-		camera.setToOrtho(false, (w/h) * 10, 10);
+
+		camera.setToOrtho(false, pixelsPerTile * (w/h) * tilesVisible, pixelsPerTile * tilesVisible);
 		camera.update();
 
 		map = new TmxMapLoader().load("maps/map01.tmx");
-		renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
-
-		cameraController = new OrthoCamController(camera, sprite, map);
-		Gdx.input.setInputProcessor(cameraController);
+		renderer = new OrthogonalTiledMapRenderer(map, 1f);
 
 		font = new BitmapFont();
 		font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-		font.getData().setScale(.1f,.1f);
+		font.getData().setScale(1f,1f);
 
 		sr = new ShapeRenderer();
 
@@ -95,6 +89,9 @@ public class MyRPG extends ApplicationAdapter {
 			}
 		}
 
+		cameraController = new OrthoCamController(camera, player, map, pixelsPerTile, allTiles);
+		Gdx.input.setInputProcessor(cameraController);
+
 		System.out.println("Game started.");
 	}
 
@@ -113,25 +110,26 @@ public class MyRPG extends ApplicationAdapter {
 
 
 		sr.begin(ShapeRenderer.ShapeType.Line);
-		sr.setColor(Color.GREEN);
-		sr.rect(0, 0, 1, 1);
+		sr.rect(camera.position.x, camera.position.y, pixelsPerTile, pixelsPerTile);
+		player.renderBoundingBox(sr, camera.position.x, camera.position.y);
+
 		for(int i = 0; i < numY; i++) {
 			for (int j = 0; j < numX; j++) {
 				if (allTiles[i][j] == 1) {
 					sr.setColor(Color.RED);
+					sr.rect(pixelsPerTile * i, pixelsPerTile * j,
+							pixelsPerTile, pixelsPerTile);
 				} else {
 					sr.setColor(Color.BLUE);
 				}
-				sr.rect(i,j,1,1);
 			}
 		}
 		sr.end();
 
-		
-		sprite.setCenterX(camera.position.x);
 		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), camera.position.x-8, camera.position.y+5);
-		sprite.draw(batch);
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(),
+				camera.position.x - (3 * pixelsPerTile), camera.position.y + (5 * pixelsPerTile));
+		player.draw(batch, camera.position);
 		batch.end();
 	}
 

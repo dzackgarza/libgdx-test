@@ -18,13 +18,23 @@ public class OrthoCamController extends InputAdapter {
     final Vector3 curr = new Vector3();
     final Vector3 last = new Vector3(-1, -1, -1);
     final Vector3 delta = new Vector3();
-    Sprite playerSprite;
     TiledMap map;
+    Player player;
+    private float dp;
+    int[][] allTiles;
+    int mapWidth, mapHeight;
 
-    public OrthoCamController (OrthographicCamera camera, Sprite s, TiledMap m) {
+
+    public OrthoCamController(OrthographicCamera camera, Player p, TiledMap m, float pixelsPerTile,
+                              int[][] tiles) {
         this.camera = camera;
-        this.playerSprite = s;
+        this.player = p;
         this.map = m;
+        this.dp = pixelsPerTile;
+        this.allTiles = tiles;
+        this.mapWidth = m.getProperties().get("width", int.class);
+        this.mapHeight = m.getProperties().get("height", int.class);
+        int ratio = m.getProperties().get("tileheight", int.class);
     }
 
     @Override
@@ -34,9 +44,9 @@ public class OrthoCamController extends InputAdapter {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Vector3 clickCoordinates = new Vector3(screenX,screenY,0);
-        Vector3 position = camera.unproject(clickCoordinates);
-        playerSprite.setPosition(position.x, position.y);
+        //Vector3 clickCoordinates = new Vector3(screenX,screenY,0);
+        //Vector3 position = camera.unproject(clickCoordinates);
+        //player.sprite.setPosition(position.x, position.y);
         return true;
     }
 
@@ -51,7 +61,7 @@ public class OrthoCamController extends InputAdapter {
     }
 
     @Override
-    public boolean touchDragged (int x, int y, int pointer) {
+    public boolean touchDragged(int x, int y, int pointer) {
         camera.unproject(curr.set(x, y, 0));
         if (!(last.x == -1 && last.y == -1 && last.z == -1)) {
             camera.unproject(delta.set(last.x, last.y, 0));
@@ -63,35 +73,47 @@ public class OrthoCamController extends InputAdapter {
     }
 
     @Override
-    public boolean touchUp (int x, int y, int pointer, int button) {
+    public boolean touchUp(int x, int y, int pointer, int button) {
         last.set(-1, -1, -1);
         return false;
     }
 
-    @Override public boolean keyDown(int keycode) {
+    @Override
+    public boolean keyDown(int keycode) {
         return false;
     }
 
-    private int dx = 1;
-
-    @Override public boolean keyUp(int keycode) {
-        if(keycode == Input.Keys.LEFT)
-            camera.translate(-dx,0);
-        if(keycode == Input.Keys.RIGHT)
-            camera.translate(dx,0);
-        if(keycode == Input.Keys.DOWN) {
-            camera.translate(0, -dx);
-            playerSprite.setY(playerSprite.getY() - 1);
+    @Override
+    public boolean keyUp(int keycode) {
+        if (keycode == Input.Keys.LEFT
+                && player.x - 1 >= 0
+                && allTiles[player.x - 1][player.y] == 0) {
+            camera.translate(-dp, 0);
+            player.move(-1, 0);
         }
-        if(keycode == Input.Keys.UP) {
-            camera.translate(0, dx);
-            playerSprite.setY(playerSprite.getY() + 1);
+        if (keycode == Input.Keys.RIGHT
+                && player.x + 1 <= mapWidth
+                && allTiles[player.x + 1][player.y] == 0) {
+            camera.translate(dp, 0);
+            player.move(1, 0);
         }
-        if(keycode == Input.Keys.ESCAPE)
+        if (keycode == Input.Keys.UP
+                && player.y + 1 <= mapHeight
+                && allTiles[player.x][player.y + 1] == 0) {
+            camera.translate(0, dp);
+            player.move(0, 1);
+        }
+        if (keycode == Input.Keys.DOWN
+                && player.y - 1 >= 0
+                && allTiles[player.x][player.y - 1] == 0) {
+            camera.translate(0, -dp);
+            player.move(0, -1);
+        }
+        if (keycode == Input.Keys.ESCAPE)
             Gdx.app.exit();
-        if(keycode == Input.Keys.NUM_1)
+        if (keycode == Input.Keys.NUM_1)
             map.getLayers().get(0).setVisible(!map.getLayers().get(0).isVisible());
-        if(keycode == Input.Keys.NUM_2)
+        if (keycode == Input.Keys.NUM_2)
             map.getLayers().get(1).setVisible(!map.getLayers().get(1).isVisible());
 
         return false;

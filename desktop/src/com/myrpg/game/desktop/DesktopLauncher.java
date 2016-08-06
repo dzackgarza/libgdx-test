@@ -7,7 +7,7 @@ import com.myrpg.game.MyRPG;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 1200;
+		config.width = 480;
 		config.height = 800;
 		new LwjglApplication(new MyRPG(), config);
 	}
