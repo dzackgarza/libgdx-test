@@ -38,6 +38,7 @@ public class MyRPG extends ApplicationAdapter {
 
 	Box2DDebugRenderer debugRenderer;
 	MapLayer objectlayer;
+	TiledMapTileLayer terrain2;
 	int[][] allTiles;
 
 	int numY, numX;
@@ -45,6 +46,9 @@ public class MyRPG extends ApplicationAdapter {
 	int pixelsPerTile = 32;
 
 	Player player;
+	CenterCamera centerCam;
+
+	boolean debug = false;
 
 	@Override
 	public void create () {
@@ -54,25 +58,29 @@ public class MyRPG extends ApplicationAdapter {
 
 		batch = new SpriteBatch();
 
-		player = new Player("pik.png", pixelsPerTile);
+		int startX = 12;
+		int startY = 0;
+		player = new Player("pik.png", pixelsPerTile, startX, startY);
 
 		camera = new OrthographicCamera(w, h);
 
 		camera.setToOrtho(false, pixelsPerTile * (w/h) * tilesVisible, pixelsPerTile * tilesVisible);
-		camera.update();
+		//camera.translate((player.x - 3) * 32, (player.y - 4) * 32);
+		//camera.update();
+
+		centerCam = new CenterCamera(pixelsPerTile, camera, startX, startY);
 
 		map = new TmxMapLoader().load("maps/map01.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1f);
 
 		font = new BitmapFont();
 		font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-		font.getData().setScale(1f,1f);
 
 		sr = new ShapeRenderer();
 
 		objectlayer = map.getLayers().get("objectlayer");
 		MapLayer terrain = map.getLayers().get("terrainlayer");
-		TiledMapTileLayer terrain2 = (TiledMapTileLayer) terrain;
+		terrain2 = (TiledMapTileLayer) terrain;
 
 		numY = terrain2.getHeight();
 		numX = terrain2.getWidth();
@@ -89,7 +97,7 @@ public class MyRPG extends ApplicationAdapter {
 			}
 		}
 
-		cameraController = new OrthoCamController(camera, player, map, pixelsPerTile, allTiles);
+		cameraController = new OrthoCamController(camera, player, map, pixelsPerTile, allTiles, centerCam);
 		Gdx.input.setInputProcessor(cameraController);
 
 		System.out.println("Game started.");
@@ -98,20 +106,41 @@ public class MyRPG extends ApplicationAdapter {
 	@Override
 	public void render () {
 
-		Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
+		Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		camera.update();
 		renderer.setView(camera);
 		renderer.render();
 
-		sr.setProjectionMatrix(camera.combined);
+		if(true) drawCollisionBoxes();
+
 		batch.setProjectionMatrix(camera.combined);
 
+		batch.begin();
+		font.setColor(Color.WHITE);
+		font.getData().setScale(.8f,.8f);
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(),
+				camera.position.x - (3 * pixelsPerTile), camera.position.y + (5 * pixelsPerTile));
+		font.getData().setScale(.5f, .5f);
 
+		if(debug) drawTileCoordinates();
+
+		player.draw(batch, camera.position);
+		font.getData().setScale(.4f);
+		font.setColor(Color.SKY);
+		font.draw(batch, "(" + (int)camera.position.x + ", " + (int)camera.position.y + ")",
+				camera.position.x, camera.position.y + 38);
+		batch.end();
+	}
+
+	private void drawCollisionBoxes() {
+		sr.setProjectionMatrix(camera.combined);
 		sr.begin(ShapeRenderer.ShapeType.Line);
-		sr.rect(camera.position.x, camera.position.y, pixelsPerTile, pixelsPerTile);
-		player.renderBoundingBox(sr, camera.position.x, camera.position.y);
+
+		centerCam.draw(sr);
+
+		player.renderBoundingBox(sr);
 
 		for(int i = 0; i < numY; i++) {
 			for (int j = 0; j < numX; j++) {
@@ -125,12 +154,19 @@ public class MyRPG extends ApplicationAdapter {
 			}
 		}
 		sr.end();
+	}
 
-		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(),
-				camera.position.x - (3 * pixelsPerTile), camera.position.y + (5 * pixelsPerTile));
-		player.draw(batch, camera.position);
-		batch.end();
+	private void drawTileCoordinates() {
+		for(int i = 0; i < terrain2.getHeight(); i++) {
+			// i = row
+			for (int j = 0; j < terrain2.getWidth(); j++) {
+				//j = col
+				font.draw(batch, "(" + i + "," + j + ")",
+						(32 * i), (32 * j) + 8);
+				font.draw(batch, "(" + (32 * i) + "," + (32 * j) + ")",
+						(32 * i), (32 * j) + 20);
+			}
+		}
 	}
 
 	@Override

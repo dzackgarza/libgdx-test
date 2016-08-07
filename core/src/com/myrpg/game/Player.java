@@ -7,25 +7,27 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class Player {
     protected Sprite sprite;
     private int pixelsPerTile;
     Rectangle boundingBox;
-    int x = 12, y = 0;
+    int x,y;
+    float worldCoordsX = 12 * 32, worldCoordsY = 0;
+    boolean selected;
 
-    public Player(String path, int p) {
+    public Player(String path, int p, int startX, int startY) {
         this.pixelsPerTile = p;
         this.sprite = new Sprite(new Texture(Gdx.files.internal(path)));
         sprite.setPosition(this.x, this.y);
         sprite.setSize(pixelsPerTile, pixelsPerTile);
         this.boundingBox = new Rectangle(0, 0, pixelsPerTile, pixelsPerTile);
+        this.x = startX;
+        this.y = startY;
     }
 
     public void draw(Batch batch, Vector3 cameraPosition) {
-        //sprite.setCenter(cameraPosition.x + pixelsPerTile/2, cameraPosition.y + pixelsPerTile/2);
         sprite.setCenter(
                 (pixelsPerTile/2) + (pixelsPerTile * x),
                 (pixelsPerTile/2) + (pixelsPerTile * y)
@@ -33,9 +35,10 @@ public class Player {
         sprite.draw(batch);
     }
 
-    public void renderBoundingBox(ShapeRenderer sr, float x, float y){
-        sr.setColor(Color.BLUE);
-        sr.rect(x, y, pixelsPerTile, pixelsPerTile);
+    public void renderBoundingBox(ShapeRenderer sr){
+        if(!selected) return;
+        sr.setColor(Color.CHARTREUSE);
+        sr.rect(this.sprite.getX(), this.sprite.getY(), pixelsPerTile, pixelsPerTile);
     }
 
     public void move(int dx, int dy) {
