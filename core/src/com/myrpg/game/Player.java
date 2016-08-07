@@ -13,7 +13,7 @@ public class Player {
     protected Sprite sprite;
     private int pixelsPerTile;
     Rectangle boundingBox;
-    int x,y;
+    int x, y;
     float worldCoordsX = 12 * 32, worldCoordsY = 0;
     boolean selected;
 
@@ -29,14 +29,14 @@ public class Player {
 
     public void draw(Batch batch, Vector3 cameraPosition) {
         sprite.setCenter(
-                (pixelsPerTile/2) + (pixelsPerTile * x),
-                (pixelsPerTile/2) + (pixelsPerTile * y)
+                (pixelsPerTile / 2) + (pixelsPerTile * x),
+                (pixelsPerTile / 2) + (pixelsPerTile * y)
         );
         sprite.draw(batch);
     }
 
-    public void renderBoundingBox(ShapeRenderer sr){
-        if(!selected) return;
+    public void renderBoundingBox(ShapeRenderer sr) {
+        if (!selected) return;
         sr.setColor(Color.CHARTREUSE);
         sr.rect(this.sprite.getX(), this.sprite.getY(), pixelsPerTile, pixelsPerTile);
     }

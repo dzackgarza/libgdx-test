@@ -4,13 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 
 public class OrthoCamController extends InputAdapter {
@@ -47,6 +41,7 @@ public class OrthoCamController extends InputAdapter {
 
     boolean dragging = false;
     Vector3 tp = new Vector3();
+
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
@@ -59,12 +54,11 @@ public class OrthoCamController extends InputAdapter {
         camera.unproject(tp.set(screenX, screenY, 0));
         dragging = true;
 
-        Vector3 s =camera.unproject(new Vector3(screenX, screenY, 0));
+        Vector3 s = camera.unproject(new Vector3(screenX, screenY, 0));
         int x = (int) (s.x / 32);
         int y = (int) (s.y / 32);
-        //player.sprite.setPosition(position.x, position.y);
-        if(player.x == x && player.y == y) {
-            player.selected = true;
+        if (player.x == x && player.y == y) {
+            player.selected = !player.selected;
         } else {
             player.selected = false;
         }
@@ -74,8 +68,8 @@ public class OrthoCamController extends InputAdapter {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if(!dragging) return false;
-        System.out.println("touchDragged: " + screenX + "," +screenY);
+        if (!dragging) return false;
+        System.out.println("touchDragged: " + screenX + "," + screenY);
 
         camera.unproject(curr.set(screenX, screenY, 0));
         if (!(last.x == -1 && last.y == -1 && last.z == -1)) {
@@ -117,29 +111,29 @@ public class OrthoCamController extends InputAdapter {
     @Override
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.LEFT) {
-            if(player.selected) {
+            if (player.selected) {
                 if (player.x - 1 < 0) return false;
-                if (allTiles[player.x-1][player.y] == 1) return false;
-                centerCam.translate(-1,0);
-                player.move(-1,0);
+                if (allTiles[player.x - 1][player.y] == 1) return false;
+                centerCam.translate(-1, 0);
+                player.move(-1, 0);
             } else {
                 if (centerCam.intX - 1 < 0) return false;
-                centerCam.translate(-1,0);
+                centerCam.translate(-1, 0);
             }
         }
         if (keycode == Input.Keys.RIGHT) {
-            if(player.selected) {
+            if (player.selected) {
                 if (player.x + 1 >= mapWidth) return false;
-                if (allTiles[player.x+1][player.y] == 1) return false;
-                centerCam.translate(1,0);
-                player.move(1,0);
+                if (allTiles[player.x + 1][player.y] == 1) return false;
+                centerCam.translate(1, 0);
+                player.move(1, 0);
             } else {
                 if (centerCam.intX + 1 >= mapWidth) return false;
-                centerCam.translate(1,0);
+                centerCam.translate(1, 0);
             }
         }
         if (keycode == Input.Keys.UP) {
-            if(player.selected) {
+            if (player.selected) {
                 if (player.y + 1 >= mapHeight) return false;
                 if (allTiles[player.x][player.y + 1] == 1) return false;
                 centerCam.translate(0, 1);
@@ -151,7 +145,7 @@ public class OrthoCamController extends InputAdapter {
         }
 
         if (keycode == Input.Keys.DOWN) {
-            if(player.selected) {
+            if (player.selected) {
                 if (player.y - 1 < 0) return false;
                 if (allTiles[player.x][player.y - 1] == 1) return false;
                 centerCam.translate(0, -1);
@@ -162,9 +156,8 @@ public class OrthoCamController extends InputAdapter {
             }
         }
 
-        if(keycode == Input.Keys.SPACE) {
-            //player.sprite.setPosition(position.x, position.y);
-            if(player.x == centerCam.intX && player.y == centerCam.intY) {
+        if (keycode == Input.Keys.SPACE) {
+            if (player.x == centerCam.intX && player.y == centerCam.intY) {
                 player.selected = !player.selected;
             } else {
                 player.selected = false;
