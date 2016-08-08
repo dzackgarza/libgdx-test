@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="16" height="16" tilewidth="32" tileheight="32" nextobjectid="260">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" nextobjectid="271">
  <tileset firstgid="1" name="tiles" tilewidth="32" tileheight="32" tilecount="24" columns="8">
   <image source="tiles.png" width="256" height="96"/>
   <tile id="1">
@@ -46,22 +46,40 @@
    </properties>
   </tile>
  </tileset>
- <layer name="groundlayer" width="16" height="16">
+ <tileset firstgid="29" name="quest_vice3" tilewidth="216" tileheight="117" tilecount="1" columns="1">
+  <image source="../quest_vice3.png" width="216" height="177"/>
+  <tile id="0">
+   <properties>
+    <property name="solid" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="groundlayer" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJy9kNEJwCAQQyPFTz+sHaijOIqjOIqjdJQGRChitWdLPwIK93LJKQDqBznAL0AsckKeDLaL+E89/1pmwNf+I93x3JOWnKUr5o0tvvaV3sd0btC7vaR/K6N70JvZ/BcdR7ymLGdWIPAdpDzZWLrS45jY721mdz3Bv+0v4U+Z6Sir
+   eJzVksEJwCAQBDcEn3kYU1BKsRRLsRRLSSlZEEEEjeZ8JAcL+nBub0/gH7UI9ZZnALsCPskIeWTgyMR7aPHK/qW2QV7Z/0m9PPoIa/TaFOfxPbzUV7rfzF81w3K3s/LLZ6jxTEdu9G57eSN/cJSnKM03O+B4dlIeWT5lReY1wZ/VkXWqCbzZ+Ul4X60bJkooqw==
   </data>
  </layer>
- <layer name="terrainlayer" width="16" height="16">
+ <layer name="terrainlayer" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJytU0kKwDAIlB6E+INA///O9pAhg7XB1A54iDruaSLSfpDjFpMJGzrYI8Bmjgso+a34GZxFfjX/Dh+zxAz5bfKcfSX3Vz7vthdrQDyAe0XvUQ6+nxXe7ivL97ft+YihgU+Wz/+AZ4v9R9j5n742HfoLgHEDuA==
+   eJzllNEKwCAIRWUPQv7BYPv/39weukzEbEvfdkGioqPkrUZE7cex3SH0SPoa9j2NWGJYEPfx/Mh7o6OYV11fhofeoCd6LgEnU181T3vJxl5cI/JB+q5wd17OyM+RRn5f5dm3OOOByc6ZVZ5+x7p38J+nzP9ja+ckz/o0y5rxLuBlCKY=
   </data>
  </layer>
  <objectgroup name="objectlayer">
-  <object id="257" x="384" y="96" width="64" height="64">
-   <ellipse/>
+  <object id="267" name="SpawnPoint" gid="15" x="448" y="576" width="32" height="32"/>
+  <object id="268" name="Teleporter" gid="16" x="416" y="640" width="32" height="32">
+   <properties>
+    <property name="teleportID" type="int" value="0"/>
+   </properties>
   </object>
-  <object id="259" x="160" y="64">
-   <polygon points="0,0 -32,32 0,64"/>
+  <object id="269" name="Teleporter" gid="16" x="448" y="640" width="32" height="32">
+   <properties>
+    <property name="teleportID" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="270" name="Teleporter" gid="16" x="480" y="640" width="32" height="32">
+   <properties>
+    <property name="teleportID" type="int" value="0"/>
+   </properties>
   </object>
  </objectgroup>
 </map>
